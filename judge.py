@@ -134,25 +134,17 @@ def checkWinTopRight(col, row, player_number):
     return False
 # funcion jugador 1
 def intelligentFunction1(turn, board):
-    m = Minimax(board)
+    m = Minimax()
     best_move, value = m.bestMove(6, board, 1)
     return best_move
 
 # funcion jugador 2
 def intelligentFunction2(turn, board):
-    m = Minimax(board)
-    best_move, value = m.bestMove(7, board, 2)
+    m = Minimax()
+    best_move, value = m.bestMove(6, board, 2)
     return best_move
 
-def isLegalMove(self, column, board):
-    
-    for i in range(6):
-        if board[column][i] == 0:
-            # once we find the first empty, we know it's a legal move
-            return True
-    
-    # if we get here, the column is full
-    return False
+
 
 def main():
     global board
