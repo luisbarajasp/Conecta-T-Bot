@@ -8,7 +8,7 @@ class Player(object):
     def move(self, board, turn):
         root = Node()
 
-        depth = 5
+        depth = 2
 
         self.check_move(board,turn,root,depth,True)
 
@@ -41,31 +41,44 @@ class Player(object):
 
         values = self.get_values(board,turn)
         values = [i * mult for i in values]
-        # print(values)
+        print(values)
         for column in range(7):
             child = Node(values[column])
             root.add_child([child])
+            alt_board = [x[:] for x in board]
 
+            opp_turn = 1
+            if turn == 1:
+                opp_turn = 2
 
-        opp_turn = 1
-        if turn == 1:
-            opp_turn = 2
+            if is_my_turn:
+                alt_board = self.fill_board(alt_board, column, turn)
+            else:
+                alt_board = self.fill_board(alt_board, column, opp_turn)
 
-        alt_board = [x[:] for x in board]
+            self.print_game(alt_board)
 
-        if is_my_turn:
-            self.fill_board(alt_board, column, turn)
-        else:
-            self.fill_board(alt_board, column, opp_turn)
-
-        for child in root.get_children():
             self.check_move(alt_board,turn,child,depth-1,not is_my_turn)
+
+        # count = 0
+        # for child in root.get_children():
+        #     count += 1
+        #     print(count)
+
+    def print_game(self,board):
+        for row in range(5, -1, -1):
+            for col in range(0, 7):
+                # if(board[x][y] == 0):
+                #   print (" ")
+                print (board[row][col], end="  ")
+            print ("\n")
+        print ("\n")
 
     def fill_board(self,board,column,turn):
         for row in range(6):
             if board[row][column] == 0:
                 board[row][column] = turn
-                return
+                return board
 
     def validate_column(self, column, board):
         for row in range(6):
