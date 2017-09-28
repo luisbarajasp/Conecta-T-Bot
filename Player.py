@@ -10,7 +10,17 @@ class Player(object):
 
         depth = 5
 
-        return self.check_move(board,turn,root,depth-1,True)
+        self.check_move(board,turn,root,depth,True)
+
+        self.getMiniMax(root, depth-1, True)
+
+        move = root.next_hop[0]
+
+        # print(move)
+
+        # root.print_node()
+
+        return move
         # return random.randint(0,6)
 
     def first_move(self,board):
@@ -19,7 +29,6 @@ class Player(object):
                 return False
 
         return True
-
     def check_move(self,board,turn,root,depth,is_my_turn):
         if depth == 0:
             return root.get_data()
@@ -28,20 +37,21 @@ class Player(object):
             mult = 1
         else:
             mult = -1
+        # mult = 1
 
         values = self.get_values(board,turn)
         values = [i * mult for i in values]
+        # print(values)
         for column in range(7):
             child = Node(values[column])
             root.add_child([child])
 
-        self.getMiniMax(root, depth-1, is_my_turn)
 
         opp_turn = 1
         if turn == 1:
             opp_turn = 2
 
-        alt_board = board
+        alt_board = [x[:] for x in board]
 
         if is_my_turn:
             self.fill_board(alt_board, column, turn)
@@ -50,8 +60,6 @@ class Player(object):
 
         for child in root.get_children():
             self.check_move(alt_board,turn,child,depth-1,not is_my_turn)
-
-        return root.next_hop[0]
 
     def fill_board(self,board,column,turn):
         for row in range(6):
@@ -118,23 +126,23 @@ class Player(object):
         try:
             return (board[row+1][column+1] == turn and board[row][column+1] == turn and board[row-1][column+1] == turn or board[row+1][column-1] == turn and board[row][column-1] == turn and board[row-1][column-1] == turn) or (board[row-1][column-1] == turn and board[row-1][column] == turn and board[row-1][column+1] == turn or board[row+1][column-1] == turn and board[row+1][column] == turn and board[row+1][column+1] == turn) or (board[row+2][column] == turn and board[row+1][column+1] == turn and board[row][column+2] == turn or board[row][column-2] == turn and board[row-1][column-1] == turn and board[row-2][column] == turn) or (board[row-2][column] == turn and board[row-1][column-1] == turn and board[row][column+2] == turn or board[row][column-2] == turn and board[row+1][column-1] == turn and board[row+2][column] == turn) or (board[row-1][column-1] == turn and board[row-1][column] == turn and board[row-2][column] == turn or board[row][column-2] == turn and board[row][column-1] == turn and board[row-1][column-1] == turn) or (board[row][column-2] == turn and board[row-1][column-1] == turn and board[row-2][column-2] == turn or board[row+2][column-2] == turn and board[row+2][column-1] == turn and board[row][column-2] == turn) or (board[row+1][column-1] == turn and board[row+1][column] == turn and board[row+2][column] == turn or board[row][column-2] == turn and board[row][column-1] == turn and board[row+1][column-1] == turn) or (board[row+2][column-2] == turn and board[row+1][column-1] == turn and board[row+2][column] == turn or board[row+2][column] == turn and board[row+1][column+1] == turn and board[row+2][column+2] == turn) or (board[row+2][column] == turn and board[row+1][column] == turn and board[row+1][column+1] == turn or board[row+1][column+1] == turn and board[row][column+1] == turn and board[row][column+2] == turn) or (board[row][column+2] == turn and board[row-1][column+1] == turn and board[row-2][column+2] == turn or board[row+2][column+2] == turn and board[row+1][column+1] == turn and board[row][column+2] == turn) or (board[row-1][column] == turn and board[row-2][column] == turn and board[row-1][column+1] == turn or board[row][column+1] == turn and board[row-1][column+1] == turn and board[row][column+2] == turn) or (board[row-2][column] == turn and board[row-1][column+1] == turn and board[row-2][column+2] == turn or board[row-2][column-2] == turn and board[row-1][column-1] == turn and board[row-2][column] == turn)
         except IndexError:
-            pass
+            return False
 
     def make_three(self,board,turn,row,column):
         try:
             return (board[row+1][column] == turn and board[row+2][column] == turn) or (board[row+1][column] == turn and board[row+1][column+1] == turn) or (board[row+1][column] == turn and board[row+1][column-1] == turn) or(board[row+2][column] == turn and board[row+1][column+1] == turn) or (board[row+2][column] == turn and board[row+1][column-1] == turn) or (board[row+1][column+1] == turn and board[row][column+1] == turn) or(board[row+1][column+1] == turn and board[row][column+2] == turn) or (board[row][column+1] == turn and board[row][column+2] == turn) or (board[row][column+1] == turn and board[row-1][column+1] == turn) or(board[row][column+2] == turn and board[row-2][column+1] == turn) or (board[row-1][column+1] == turn and board[row-1][column] == turn) or (board[row-1][column+1] == turn and board[row-2][column] == turn) or(board[row-1][column] == turn and board[row-2][column] == turn) or (board[row-1][column] == turn and board[row-1][column-1] == turn) or (board[row-2][column] == turn and board[row-1][column-1] == turn) or(board[row-1][column-1] == turn and board[row][column-1] == turn) or (board[row-1][column-1] == turn and board[row][column-2] == turn) or (board[row][column-1] == turn and board[row][column-2] == turn) or(board[row][column-1] == turn and board[row+1][column-1] == turn) or (board[row][column-2] == turn and board[row+1][column-1] == turn)
         except IndexError:
-            pass
+            return False
 
     def make_two(self,board,turn,row,column):
         try:
             return board[row-1][column] == turn or board[row-1][column-1] == turn or board[row][column-1] == turn or board[row+1][column-1] == turn or board[row+1][column] == turn or board[row+1][column+1] == turn or board[row][column+1] == turn or board[row-1][column+1] == turn
         except IndexError:
-            pass
+            return False
 
     def getMiniMax(self, root, depth, isMax=True):
         # if depth == 0:
-
+        # print(depth)
         # if not data:
         childrenData = []
         childrenHop = []
@@ -156,6 +164,5 @@ class Player(object):
         next_hop.insert(0, index)
         root.set_next_hop(next_hop)
         # root.set_data(data)
-
 
         return root.get_data()

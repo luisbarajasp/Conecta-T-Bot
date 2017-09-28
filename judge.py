@@ -70,7 +70,7 @@ def printGame():
         for col in range(0, width):
             # if(board[x][y] == 0):
             #   print (" ")
-            print (board[row][col], end=" ")
+            print (board[row][col], end="  ")
         print ("\n")
     print ("\n")
 
@@ -159,10 +159,15 @@ def intelligentFunction1(turn, board):
     #INCLUDE
     return player.move(board,turn)
     # return random.randint(0,6)
+    # nb = int(input('Choose a number: '))
+    # return nb
 
+# player1 = Player()
 def intelligentFunction2(turn, board):
-    return random.randint(0,6)
+    # return random.randint(0,6)
     # return player.move(board,turn)
+    nb = int(input('Choose a number: '))
+    return nb
 
 
 def main():
