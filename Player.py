@@ -9,7 +9,6 @@ class Player(object):
 
     def move(self, board, turn):
         depth = 5
-        self.get_value(board,turn,0)
 
         return check_move(board,turn,root,depth-1,True)
         # return random.randint(0,6)
@@ -21,24 +20,42 @@ class Player(object):
 
         return True
 
-    def check_move(self,board,turn,root,depth,maximum):
+    def check_move(self,board,turn,root,depth,is_my_turn):
         if depth == 0:
             return root.get_data()
 
-        if maximum:
+        if is_my_turn:
             mult = 1
         else:
             mult = -1
-            
+
         values = [i * mult for i in self.get_values(board,turn)]
         for column in range(7):
             child = Node(values[column])
             root.add_child(child)
 
         # TODO: comprobar dependiendo del max o min, modificas el tablero y mandas a llamar al siguiente checkmove
+        getMiniMax(root)
+
+        opp_turn = 1
+        if turn == 1:
+            opp_turn = 2
+
+        alt_board = board
+
+        if is_my_turn:
+            self.fill_board(alt_board, column, turn)
+        else:
+            self.fill_board(alt_board, column, opp_turn)
 
         for child in root.get_children():
-            check_move(board,turn,child,depth-1,not maximum)
+            check_move(alt_board,turn,child,depth-1,not is_my_turn)
+
+    def fill_board(self,board,column,turn):
+        for row in range(6):
+            if board[row][column] == 0:
+                board[row][column] = turn
+                return
 
     def validate_column(self, column, board):
         for row in range(6):
@@ -78,8 +95,62 @@ class Player(object):
                         break
 
     def get_column_value(self,board,turn,row,column):
-        if self.check_T(board,turn,row,column)
+        opp_turn = 1
+        if turn == 1:
+            opp_turn = 2
+        if self.make_T(board,turn,row,column):
+            return 1000000
+        elif self.make_T(board,opp_turn,row,column):
+            return 999999
+        elif self.make_three(board,turn,row,column):
+            return 100
+        elif self.make_three(board,opp_turn,row,column):
+            return 99
+        elif self.make_two(board,turn,row,column):
+            return 10
+        elif self.make_two(board,opp_turn,row,column):
+            return 9
+        else:
+            return 0
 
+    def make_T(self,board,turn,row,column):
+            # |-
+        return (board[row+1][column+1] == turn && board[row][column+1] == turn && board[row-1][column+1] == turn || board[row+1][column-1] == turn && board[row][column-1] == turn && board[row-1][column-1] == turn ) or
+            # —'—
+            (board[row-1][column-1] == turn && board[row-1][column] == turn && board[row-1][column+1] == turn || board[row+1][column-1] == turn && board[row+1][column] == turn && board[row+1][column+1] == turn) or
+            #,\
+            (board[row+2][column] == turn && board[row+1][column+1] == turn && board[row][column+2] == turn || board[row][column-2] == turn && board[row-1][column-1] == turn && board[row-2][column] == turn) or
+            #`/
+            (board[row-2][column] == turn && board[row-1][column-1] == turn && board[row][column+2] == turn || board[row][column-2] == turn && board[row+1][column-1] == turn && board[row+2][column] == turn) or
+            #￢
+            (board[row-1][column-1] == turn && board[row-1][column] == turn && board[row-2][column] == turn || board[row][column-2] == turn && board[row][column-1] == turn && board[row-1][column-1] == turn) or
+            # >
+            (board[row][column-2] == turn && board[row-1][column-1] == turn && board[row-2][column-2] == turn || board[row+2][column-2] == turn && board[row+2][column-1] == turn && board[row][column-2] == turn) or
+            # _|
+            (board[row+1][column-1] == turn && board[row+1][column] == turn && board[row+2][column] == turn || board[row][column-2] == turn && board[row][column-1] == turn && board[row+1][column-1] == turn) or
+            # ∨
+            (board[row+2][column-2] == turn && board[row+1][column-1] == turn && board[row+2][column] == turn || board[row+2][column] == turn && board[row+1][column+1] == turn && board[row+2][column+2] == turn) or
+            # |_
+            (board[row+2][column] == turn && board[row+1][column] == turn && board[row+1][column+1] == turn || board[row+1][column+1] == turn && board[row][column+1] == turn && board[row][column+2] == turn) or
+            # <
+            (board[row][column+2] == turn && board[row-1][column+1] == turn && board[row-2][column+2] == turn || board[row+2][column+2] == turn && board[row+1][column+1] == turn && board[row][column+2] == turn) or
+            # |¯
+            (board[row-1][column] == turn && board[row-2][column] == turn && board[row-1][column+1] == turn || board[row][column+1] == turn && board[row-1][column+1] == turn && board[row][column+2] == turn) or
+            #^
+            (board[row-2][column] == turn && board[row-1][column+1] == turn && board[row-2][column+2] == turn || board[row-2][column-2] == turn && board[row-1][column-1] == turn && board[row-2][column] == turn)
+
+    def make_three(self,board,turn,row,column):
+        return (board[row+1][column] == turn && board[row+2][column] == turn) or (board[row+1][column] == turn && board[row+1][column+1] == turn) or (board[row+1][column] == turn && board[row+1][column-1] == turn) or
+            (board[row+2][column] == turn && board[row+1][column+1] == turn) or (board[row+2][column] == turn && board[row+1][column-1] == turn) or (board[row+1][column+1] == turn && board[row][column+1] == turn) or
+            (board[row+1][column+1] == turn && board[row][column+2] == turn) or (board[row][column+1] == turn && board[row][column+2] == turn) or (board[row][column+1] == turn && board[row-1][column+1] == turn) or
+            (board[row][column+2] == turn && board[row-2][column+1] == turn) or (board[row-1][column+1] == turn && board[row-1][column] == turn) or (board[row-1][column+1] == turn && board[row-2][column] == turn) or
+            (board[row-1][column] == turn && board[row-2][column] == turn) or (board[row-1][column] == turn && board[row-1][column-1] == turn) or (board[row-2][column] == turn && board[row-1][column-1] == turn) or
+            (board[row-1][column-1] == turn && board[row][column-1] == turn) or (board[row-1][column-1] == turn && board[row][column-2] == turn) or (board[row][column-1] == turn && board[row][column-2] == turn) or
+            (board[row][column-1] == turn && board[row+1][column-1] == turn) or (board[row][column-2] == turn && board[row+1][column-1] == turn)
+
+    def make_two(self,board,turn,row,column):
+        return board[row-1][column] == turn or board[row-1][column-1] == turn or board[row][column-1] == turn or board[row+1][column-1] == turn or board[row+1][column] == turn or board[row+1][column+1] == turn or
+            board[row][column+1] == turn or board[row-1][column+1] == turn
 
     def getMiniMax(self, root,isMax=True):
         data = root.get_data()
