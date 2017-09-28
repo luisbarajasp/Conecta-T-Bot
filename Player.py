@@ -11,7 +11,7 @@ class Player(object):
 
         root = Node(0)
 
-        depth = 3
+        depth = 4
 
         self.check_move(board,turn,root,depth,True)
 
@@ -56,15 +56,13 @@ class Player(object):
             root.add_child([child])
             alt_board = [x[:] for x in board]
 
+            if self.validate_column(column, board):
+                if is_my_turn:
+                    alt_board = self.fill_board(alt_board, column, turn)
+                else:
+                    alt_board = self.fill_board(alt_board, column, opp_turn)
 
-            if is_my_turn:
-                alt_board = self.fill_board(alt_board, column, turn)
-            else:
-                alt_board = self.fill_board(alt_board, column, opp_turn)
-
-            # self.print_game(alt_board)
-
-            self.check_move(alt_board,turn,child,depth-1,not is_my_turn)
+                self.check_move(alt_board,turn,child,depth-1,not is_my_turn)
 
         # count = 0
         # for child in root.get_children():
@@ -113,7 +111,7 @@ class Player(object):
             # Iterates til finding first row in this column with 0, to assign value
             for row in range(6):
                 # self.print_game(board)
-                if board[row][column] < 1:
+                if board[row][column] == 0:
                     value = self.get_column_value(board,turn,row,column)
                     values.append(value)
                     break
@@ -125,22 +123,23 @@ class Player(object):
 
     def get_column_value(self,board,turn,row,column):
         opp_turn = 1
+        count = 0
         if turn == 1:
             opp_turn = 2
+
         if self.make_T(board,turn,row,column):
-            return 1000000
+            count += 1000000
         elif self.make_T(board,opp_turn,row,column):
-            return 999999
+            count += 999999
         elif self.make_three(board,turn,row,column):
-            return 100
+            count += 100
         elif self.make_three(board,opp_turn,row,column):
-            return 99
+            count += 99
         elif self.make_two(board,turn,row,column):
-            return 10
+            count += 10
         elif self.make_two(board,opp_turn,row,column):
-            return 9
-        else:
-            return 0
+            count += 9
+        return count
 
     def make_T(self,board,turn,row,column):
         try:
@@ -150,7 +149,27 @@ class Player(object):
 
     def make_three(self,board,turn,row,column):
         try:
-            return (board[row+1][column] == turn and board[row+2][column] == turn) or (board[row+1][column] == turn and board[row+1][column+1] == turn) or (board[row+1][column] == turn and board[row+1][column-1] == turn) or(board[row+2][column] == turn and board[row+1][column+1] == turn) or (board[row+2][column] == turn and board[row+1][column-1] == turn) or (board[row+1][column+1] == turn and board[row][column+1] == turn) or(board[row+1][column+1] == turn and board[row][column+2] == turn) or (board[row][column+1] == turn and board[row][column+2] == turn) or (board[row][column+1] == turn and board[row-1][column+1] == turn) or(board[row][column+2] == turn and board[row-2][column+1] == turn) or (board[row-1][column+1] == turn and board[row-1][column] == turn) or (board[row-1][column+1] == turn and board[row-2][column] == turn) or(board[row-1][column] == turn and board[row-2][column] == turn) or (board[row-1][column] == turn and board[row-1][column-1] == turn) or (board[row-2][column] == turn and board[row-1][column-1] == turn) or(board[row-1][column-1] == turn and board[row][column-1] == turn) or (board[row-1][column-1] == turn and board[row][column-2] == turn) or (board[row][column-1] == turn and board[row][column-2] == turn) or(board[row][column-1] == turn and board[row+1][column-1] == turn) or (board[row][column-2] == turn and board[row+1][column-1] == turn)
+            if ((board[row+1][column] == turn and board[row+2][column] == turn and board[row+1][column+1] == 0)
+            or (board[row+1][column] == turn and board[row+1][column+1] == turn and board[row+1][column-1] == 0)
+            or (board[row+1][column] == turn and board[row+1][column-1] == turn and board[row+1][column+1] == 0)
+            or(board[row+2][column] == turn and board[row+1][column+1] == turn and board[row+1][column] == 0 )
+            or (board[row+2][column] == turn and board[row+1][column-1] == turn and board[row+1][column] == 0)
+            or (board[row+1][column+1] == turn and board[row][column+1] == turn and board[row-1][column+1] == 0)
+            or(board[row+1][column+1] == turn and board[row][column+2] == turn and board[row][column+1] == 0)
+            or (board[row][column+1] == turn and board[row][column+2] == turn and board[row+1][column+1] == 0)
+            or (board[row][column+1] == turn and board[row-1][column+1] == turn and board[row+1][column+1] == 0)
+            or(board[row][column+2] == turn and board[row-2][column+1] == turn and board[row][column+1] ==0)
+            or (board[row-1][column+1] == turn and board[row-1][column] == turn and board[row-1][column-1] == 0)
+            or (board[row-1][column+1] == turn and board[row-2][column] == turn and board[row-1][column] == 0)
+            or(board[row-1][column] == turn and board[row-2][column] == turn and board[row-1][column+1] == 0)
+            or (board[row-1][column] == turn and board[row-1][column-1] == turn and board[row-1][column+1] == 0)
+            or (board[row-2][column] == turn and board[row-1][column-1] == turn and board[row-1][column] == 0)
+            or(board[row-1][column-1] == turn and board[row][column-1] == turn and board[row+1][column+1] == 0)
+            or (board[row-1][column-1] == turn and board[row][column-2] == turn and board[row][column-1] == 0)
+            or (board[row][column-1] == turn and board[row][column-2] == turn and board[row+1][column-1] == 0)
+            or(board[row][column-1] == turn and board[row+1][column-1] == turn and board[row-1][column-1] == 0)
+            or (board[row][column-2] == turn and board[row+1][column-1] == turn and board[row][column-1] == 0)):
+                return True
         except IndexError:
             return False
 
