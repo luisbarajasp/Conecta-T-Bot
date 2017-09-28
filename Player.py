@@ -11,7 +11,7 @@ class Player(object):
 
         root = Node(0)
 
-        depth = 4
+        depth = 3
 
         self.check_move(board,turn,root,depth,True)
 
@@ -129,15 +129,15 @@ class Player(object):
 
         if self.make_T(board,turn,row,column):
             count += 1000000
-        elif self.make_T(board,opp_turn,row,column):
+        if self.make_T(board,opp_turn,row,column):
             count += 999999
-        elif self.make_three(board,turn,row,column):
+        if self.make_three(board,turn,row,column):
             count += 100
-        elif self.make_three(board,opp_turn,row,column):
+        if self.make_three(board,opp_turn,row,column):
             count += 99
-        elif self.make_two(board,turn,row,column):
+        if self.make_two(board,turn,row,column):
             count += 10
-        elif self.make_two(board,opp_turn,row,column):
+        if self.make_two(board,opp_turn,row,column):
             count += 9
         return count
 
@@ -199,7 +199,7 @@ class Player(object):
         else:
             index, data = min(enumerate(childrenData), key=operator.itemgetter(1))
 
-        root.set_data(root.get_data() + data)
+
         next_hop = childrenHop[index]
         next_hop.insert(0, index)
         root.set_next_hop(next_hop)
