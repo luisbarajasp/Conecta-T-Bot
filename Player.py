@@ -6,13 +6,19 @@ import operator
 class Player(object):
 
     def move(self, board, turn):
-        root = Node()
+        if self.first_move(board):
+            return 3
 
-        depth = 2
+        root = Node(0)
+
+        depth = 3
 
         self.check_move(board,turn,root,depth,True)
 
         self.getMiniMax(root, depth-1, True)
+
+        for child in root.get_children():
+            print(child.get_data())
 
         move = root.next_hop[0]
 
@@ -21,11 +27,10 @@ class Player(object):
         # root.print_node()
 
         return move
-        # return random.randint(0,6)
 
     def first_move(self,board):
         for column in range(7):
-            if board[0][column] != 0:
+            if board[0][column] > 0:
                 return False
 
         return True
@@ -33,30 +38,31 @@ class Player(object):
         if depth == 0:
             return root.get_data()
 
+        opp_turn = 1
+        if turn == 1:
+            opp_turn = 2
+
         if is_my_turn:
             mult = 1
+            values = self.get_values(board,turn)
         else:
             mult = -1
+            values = self.get_values(board,opp_turn)
         # mult = 1
 
-        values = self.get_values(board,turn)
         values = [i * mult for i in values]
-        print(values)
         for column in range(7):
             child = Node(values[column])
             root.add_child([child])
             alt_board = [x[:] for x in board]
 
-            opp_turn = 1
-            if turn == 1:
-                opp_turn = 2
 
             if is_my_turn:
                 alt_board = self.fill_board(alt_board, column, turn)
             else:
                 alt_board = self.fill_board(alt_board, column, opp_turn)
 
-            self.print_game(alt_board)
+            # self.print_game(alt_board)
 
             self.check_move(alt_board,turn,child,depth-1,not is_my_turn)
 
@@ -99,21 +105,22 @@ class Player(object):
 
         # legal_columns = []
 
-        if self.first_move(board):
-            return [0,1,2,3,2,1,0]
-        else:
-            values = []
-            for column in range(7):
-                # Iterates til finding first row in this column with 0, to assign value
-                for row in range(6):
-                    if board[row][column] == 0:
-                        value = self.get_column_value(board,turn,row,column)
-                        values.append(value)
-                        break
-                    if row == 5 and board[row][column] != 0:
-                        values.append(-999999)
+        # if self.first_move(board):
+        #     return [0,1,2,10,2,1,0]
+        # else:
+        values = []
+        for column in range(7):
+            # Iterates til finding first row in this column with 0, to assign value
+            for row in range(6):
+                # self.print_game(board)
+                if board[row][column] < 1:
+                    value = self.get_column_value(board,turn,row,column)
+                    values.append(value)
+                    break
+                if row == 5 and board[row][column] > 0:
+                    values.append(-999999)
 
-            return values
+        return values
 
 
     def get_column_value(self,board,turn,row,column):
@@ -173,9 +180,9 @@ class Player(object):
         else:
             index, data = min(enumerate(childrenData), key=operator.itemgetter(1))
 
+        root.set_data(root.get_data() + data)
         next_hop = childrenHop[index]
         next_hop.insert(0, index)
         root.set_next_hop(next_hop)
-        # root.set_data(data)
 
         return root.get_data()

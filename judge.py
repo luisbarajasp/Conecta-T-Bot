@@ -157,17 +157,17 @@ def checkWinTopRight(row, col, player_number):
 player = Player()
 def intelligentFunction1(turn, board):
     #INCLUDE
-    return player.move(board,turn)
+    # return player.move(board,turn)
     # return random.randint(0,6)
-    # nb = int(input('Choose a number: '))
-    # return nb
+    nb = int(input('Choose a number: '))
+    return nb
 
 # player1 = Player()
 def intelligentFunction2(turn, board):
     # return random.randint(0,6)
-    # return player.move(board,turn)
-    nb = int(input('Choose a number: '))
-    return nb
+    return player.move(board,turn)
+    # nb = int(input('Choose a number: '))
+    # return nb
 
 
 def main():
