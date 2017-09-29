@@ -14,16 +14,16 @@ class Player(object):
 
         root = Node(0)
 
-        depth = 4
+        depth = 5
 
         self.check_move(board,turn,root,depth,True)
 
-        # for index, child in enumerate(root.get_children()):
-        #     if(child.get_data() > 999998):
-        #         return index
-        #         for ch in child.get_children():
-        #             if(ch.get_data() > 999999):
-        #                 child.set_data(-math.inf)
+        for index, child in enumerate(root.get_children()):
+            if(child.get_data() > 999998):
+                return index
+                for ch in child.get_children():
+                    if(ch.get_data() > 999999):
+                        child.set_data(-math.inf)
 
         self.getMiniMax(root, depth-1, True)
         #
@@ -125,11 +125,11 @@ class Player(object):
         if turn == 1:
             opp_turn = 2
 
-        if self.make_T(board,turn,row,column):
-        # if self.checkAnyT(board,turn,row,column):
+        # if self.make_T(board,turn,row,column):
+        if self.checkAnyT(board,turn,row,column) or self.make_T(board,turn,row,column) :
             return 1000000
-        elif self.make_T(board,opp_turn,row,column):
-        # if self.checkAnyT(board,opp_turn,row,column):
+        # elif self.make_T(board,opp_turn,row,column):
+        elif self.checkAnyT(board,opp_turn,row,column) or self.make_T(board,opp_turn,row,column):
             return 999999
         elif self.make_square(board,turn,row,column):
             return 200
@@ -172,6 +172,7 @@ class Player(object):
         or self.checkLeft(r, c, player_number, board)
         or self.checkRight(r, c, player_number, board)
         or self.checkWinBottomRight(r, c, player_number, board)
+        or self.checkWinBottomRight2(r, c, player_number, board)
         or self.checkWinBottomLeft(r, c, player_number, board)
         or self.checkWinTopLeft(r, c, player_number, board)
         or self.checkWinTopRight(r, c, player_number, board)):
@@ -210,6 +211,14 @@ class Player(object):
         if (board[row - 2][col] == player_number and board[row - 1][col + 1] == player_number and board[row][
                 col + 2] == player_number): return True
         return False
+
+    def checkWinBottomRight2(self, row, col,player_number, board):
+        global width, height
+        if (col- 1 > 0 or row -1 > 0): return False
+        if (board[row - 1][col-1] == player_number and board[row - 1][col -2] == player_number and board[row][
+                col - 2] == player_number): return True
+        return False
+
 
     def checkWinBottomLeft(self, row, col, player_number, board):
         global width, height
@@ -297,7 +306,7 @@ class Player(object):
         else:
             index, data = min(enumerate(childrenData), key=operator.itemgetter(1))
 
-        # root.set_data(root.get_data() + data)
+        root.set_data(root.get_data() + data)
         next_hop = childrenHop[index]
         next_hop.insert(0, index)
         root.set_next_hop(next_hop)
