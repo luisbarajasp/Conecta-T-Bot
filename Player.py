@@ -2,6 +2,8 @@
 import random
 from Node import Node
 import operator
+import math
+
 width, height = 7, 6
 
 class Player(object):
@@ -12,21 +14,24 @@ class Player(object):
 
         root = Node(0)
 
-        depth = 3
+        depth = 4
 
         self.check_move(board,turn,root,depth,True)
 
+        # for index, child in enumerate(root.get_children()):
+        #     if(child.get_data() > 999998):
+        #         return index
+        #         for ch in child.get_children():
+        #             if(ch.get_data() > 999999):
+        #                 child.set_data(-math.inf)
+
         self.getMiniMax(root, depth-1, True)
+        #
+        # for child in root.get_children():
+        #     print(child.get_data())
 
-        for child in root.get_children():
-            print(child.get_data())
-
-        move = root.next_hop[0]
-
-        # print(move)
-
-        # root.print_node()
-
+        move = root.get_next_hop()[0]
+        print(move)
         return move
 
     def first_move(self,board):
@@ -63,12 +68,10 @@ class Player(object):
                 else:
                     alt_board = self.fill_board(alt_board, column, opp_turn)
 
-                self.check_move(alt_board,turn,child,depth-1,not is_my_turn)
+                # print(values)
+                # self.print_game(alt_board)
 
-        # count = 0
-        # for child in root.get_children():
-        #     count += 1
-        #     print(count)
+                self.check_move(alt_board,turn,child,depth-1,not is_my_turn)
 
     def print_game(self,board):
         for row in range(5, -1, -1):
@@ -102,11 +105,6 @@ class Player(object):
         #   Block 2: 9
         #   If self begins game: 0|1|2|3|2|1|0
 
-        # legal_columns = []
-
-        # if self.first_move(board):
-        #     return [0,1,2,10,2,1,0]
-        # else:
         values = []
         for column in range(7):
             # Iterates til finding first row in this column with 0, to assign value
@@ -124,26 +122,51 @@ class Player(object):
 
     def get_column_value(self,board,turn,row,column):
         opp_turn = 1
-        count = 0
         if turn == 1:
             opp_turn = 2
 
-        if self.checkAnyT(row,column, turn, board):
-            count += 1000000
-        if self.checkAnyT(row,column, opp_turn, board):
-            count += 999999
-        if self.make_three(board,turn,row,column):
-            count += 100
-        if self.make_three(board,opp_turn,row,column):
-            count += 99
-        if self.make_two(board,turn,row,column):
-            count += 10
-        if self.make_two(board,opp_turn,row,column):
-            count += 9
-        return count
+        if self.make_T(board,turn,row,column):
+        # if self.checkAnyT(board,turn,row,column):
+            return 1000000
+        elif self.make_T(board,opp_turn,row,column):
+        # if self.checkAnyT(board,opp_turn,row,column):
+            return 999999
+        elif self.make_square(board,turn,row,column):
+            return 200
+        elif self.make_square(board,opp_turn,row,column):
+            return 199
+        elif self.make_three(board,turn,row,column):
+            return 100
+        elif self.make_three(board,opp_turn,row,column):
+            return 99
+        elif self.make_two(board,turn,row,column):
+            return 10
+        elif self.make_two(board,opp_turn,row,column):
+            return 9
+        else:
+            return 0
+
+    def make_T(self,board,turn,row,column):
+        try:
+            if ((board[row+1][column+1] == turn and board[row][column+1] == turn and board[row-1][column+1] == turn or board[row+1][column-1] == turn and board[row][column-1] == turn and board[row-1][column-1] == turn)
+            or (board[row-1][column-1] == turn and board[row-1][column] == turn and board[row-1][column+1] == turn or board[row+1][column-1] == turn and board[row+1][column] == turn and board[row+1][column+1] == turn)
+            or (board[row+2][column] == turn and board[row+1][column+1] == turn and board[row][column+2] == turn or board[row][column-2] == turn and board[row-1][column-1] == turn and board[row-2][column] == turn)
+            or (board[row-2][column] == turn and board[row-1][column-1] == turn and board[row][column+2] == turn or board[row][column-2] == turn and board[row+1][column-1] == turn and board[row+2][column] == turn)
+            or (board[row-1][column-1] == turn and board[row-1][column] == turn and board[row-2][column] == turn or board[row][column-2] == turn and board[row][column-1] == turn and board[row-1][column-1] == turn)
+            or (board[row][column-2] == turn and board[row-1][column-1] == turn and board[row-2][column-2] == turn or board[row+2][column-2] == turn and board[row+2][column-1] == turn and board[row][column-2] == turn)
+            or (board[row+1][column-1] == turn and board[row+1][column] == turn and board[row+2][column] == turn or board[row][column-2] == turn and board[row][column-1] == turn and board[row+1][column-1] == turn)
+            or (board[row+2][column-2] == turn and board[row+1][column-1] == turn and board[row+2][column] == turn or board[row+2][column] == turn and board[row+1][column+1] == turn and board[row+2][column+2] == turn)
+            or (board[row+2][column] == turn and board[row+1][column] == turn and board[row+1][column+1] == turn or board[row+1][column+1] == turn and board[row][column+1] == turn and board[row][column+2] == turn)
+            or (board[row][column+2] == turn and board[row-1][column+1] == turn and board[row-2][column+2] == turn or board[row+2][column+2] == turn and board[row+1][column+1] == turn and board[row][column+2] == turn)
+            or (board[row-1][column] == turn and board[row-2][column] == turn and board[row-1][column+1] == turn or board[row][column+1] == turn and board[row-1][column+1] == turn and board[row][column+2] == turn)
+            or (board[row-2][column] == turn and board[row-1][column+1] == turn and board[row-2][column+2] == turn or board[row-2][column-2] == turn and board[row-1][column-1] == turn and board[row-2][column] == turn)
+            or (board[row][column-1] == turn and board[row-1][column] == turn and board[row][column+1] == turn)):
+                return True
+        except IndexError:
+            return False
 
 
-    def checkAnyT(self, r, c, player_number, board):
+    def checkAnyT(self,board,player_number, r, c,):
         if (self.checkWinBelow(r, c, player_number, board)
         or self.checkWinAbove(r, c, player_number, board)
         or self.checkLeft(r, c, player_number, board)
@@ -209,6 +232,14 @@ class Player(object):
                 col - 2] == player_number): return True
         return False
 
+    def make_square(self,board,turn,row,column):
+        try:
+            if ((board[row][column+1] == turn and board[row-1][column+1] == turn and board[row-1][column] == turn)
+            or (board[row][column-1] == turn and board[row-1][column-1] == turn and board[row-1][column] == turn)):
+                return True
+        except IndexError:
+            return False
+
     def make_three(self,board,turn,row,column):
         try:
             if ((board[row+1][column] == turn and board[row+2][column] == turn and board[row+1][column+1] == 0)
@@ -230,7 +261,12 @@ class Player(object):
             or (board[row-1][column-1] == turn and board[row][column-2] == turn and board[row][column-1] == 0)
             or (board[row][column-1] == turn and board[row][column-2] == turn and board[row+1][column-1] == 0)
             or(board[row][column-1] == turn and board[row+1][column-1] == turn and board[row-1][column-1] == 0)
-            or (board[row][column-2] == turn and board[row+1][column-1] == turn and board[row][column-1] == 0)):
+            or (board[row][column-2] == turn and board[row+1][column-1] == turn and board[row][column-1] == 0)
+            or (board[row+1][column+1] == turn and board[row-1][column+1] == turn and (board[row-1][column-1] == 0 or board[row+1][column-1] == 0))
+            or (board[row+1][column-1] == turn and board[row-1][column-1] == turn and (board[row+1][column+1] == 0 or board[row-1][column+1] == 0))
+            or (board[row][column-1] == turn and board[row][column+1] == turn)
+            or (board[row][column-1] == turn and board[row-1][column] == turn)
+            or (board[row-1][column-1] == turn and board[row-1][column+1] == turn and (board[row+1][column-1] == 0 or board[row+1][column+1] == 0))):
                 return True
         except IndexError:
             return False
@@ -261,7 +297,7 @@ class Player(object):
         else:
             index, data = min(enumerate(childrenData), key=operator.itemgetter(1))
 
-
+        # root.set_data(root.get_data() + data)
         next_hop = childrenHop[index]
         next_hop.insert(0, index)
         root.set_next_hop(next_hop)
