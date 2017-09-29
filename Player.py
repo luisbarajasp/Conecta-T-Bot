@@ -2,6 +2,7 @@
 import random
 from Node import Node
 import operator
+width, height = 7, 6
 
 class Player(object):
 
@@ -127,9 +128,9 @@ class Player(object):
         if turn == 1:
             opp_turn = 2
 
-        if self.make_T(board,turn,row,column):
+        if self.checkAnyT(row,column, turn, board):
             count += 1000000
-        if self.make_T(board,opp_turn,row,column):
+        if self.checkAnyT(row,column, opp_turn, board):
             count += 999999
         if self.make_three(board,turn,row,column):
             count += 100
@@ -141,11 +142,72 @@ class Player(object):
             count += 9
         return count
 
-    def make_T(self,board,turn,row,column):
-        try:
-            return (board[row+1][column+1] == turn and board[row][column+1] == turn and board[row-1][column+1] == turn or board[row+1][column-1] == turn and board[row][column-1] == turn and board[row-1][column-1] == turn) or (board[row-1][column-1] == turn and board[row-1][column] == turn and board[row-1][column+1] == turn or board[row+1][column-1] == turn and board[row+1][column] == turn and board[row+1][column+1] == turn) or (board[row+2][column] == turn and board[row+1][column+1] == turn and board[row][column+2] == turn or board[row][column-2] == turn and board[row-1][column-1] == turn and board[row-2][column] == turn) or (board[row-2][column] == turn and board[row-1][column-1] == turn and board[row][column+2] == turn or board[row][column-2] == turn and board[row+1][column-1] == turn and board[row+2][column] == turn) or (board[row-1][column-1] == turn and board[row-1][column] == turn and board[row-2][column] == turn or board[row][column-2] == turn and board[row][column-1] == turn and board[row-1][column-1] == turn) or (board[row][column-2] == turn and board[row-1][column-1] == turn and board[row-2][column-2] == turn or board[row+2][column-2] == turn and board[row+2][column-1] == turn and board[row][column-2] == turn) or (board[row+1][column-1] == turn and board[row+1][column] == turn and board[row+2][column] == turn or board[row][column-2] == turn and board[row][column-1] == turn and board[row+1][column-1] == turn) or (board[row+2][column-2] == turn and board[row+1][column-1] == turn and board[row+2][column] == turn or board[row+2][column] == turn and board[row+1][column+1] == turn and board[row+2][column+2] == turn) or (board[row+2][column] == turn and board[row+1][column] == turn and board[row+1][column+1] == turn or board[row+1][column+1] == turn and board[row][column+1] == turn and board[row][column+2] == turn) or (board[row][column+2] == turn and board[row-1][column+1] == turn and board[row-2][column+2] == turn or board[row+2][column+2] == turn and board[row+1][column+1] == turn and board[row][column+2] == turn) or (board[row-1][column] == turn and board[row-2][column] == turn and board[row-1][column+1] == turn or board[row][column+1] == turn and board[row-1][column+1] == turn and board[row][column+2] == turn) or (board[row-2][column] == turn and board[row-1][column+1] == turn and board[row-2][column+2] == turn or board[row-2][column-2] == turn and board[row-1][column-1] == turn and board[row-2][column] == turn)
-        except IndexError:
-            return False
+
+    def checkAnyT(self, r, c, player_number, board):
+        if (self.checkWinBelow(r, c, player_number, board)
+        or self.checkWinAbove(r, c, player_number, board)
+        or self.checkLeft(r, c, player_number, board)
+        or self.checkRight(r, c, player_number, board)
+        or self.checkWinBottomRight(r, c, player_number, board)
+        or self.checkWinBottomLeft(r, c, player_number, board)
+        or self.checkWinTopLeft(r, c, player_number, board)
+        or self.checkWinTopRight(r, c, player_number, board)):
+            return True
+        return False
+
+    def checkWinBelow(self, row, col, player_number, board):
+        global width, height
+        if (col + 1 == width or row == 0 or row + 1 == height): return False
+        if (board[row - 1][col + 1] == player_number and board[row][col + 1] == player_number and board[row + 1][
+                col + 1] == player_number): return True
+        return False
+
+    def checkWinAbove(self, row, col, player_number, board):
+        global width, height
+        if (col == 0 or row == 0 or row + 1 == height): return False
+        if (board[row - 1][col - 1] == player_number and board[row][col - 1] == player_number and board[row + 1][
+                col - 1] == player_number): return True
+        return False
+
+    def checkLeft(self, row, col, player_number, board):
+        global width, height
+        if (row + 1 >= height or col + 1 >= width or col - 1 < 0): return False
+        if (board[row + 1][col - 1] == board[row + 1][col] == board[row + 1][col + 1] == player_number): return True
+        return False
+
+    def checkRight(self, row, col, player_number, board):
+        global width, height
+        if (row - 1 < 0 or col + 1 >= width or col - 1 < 0): return False
+        if (board[row - 1][col - 1] == board[row - 1][col] == board[row - 1][col + 1] == player_number): return True
+        return False
+
+    def checkWinBottomRight(self, row, col,player_number, board):
+        global width, height
+        if (row - 2 < 0 or col + 2 >= width): return False
+        if (board[row - 2][col] == player_number and board[row - 1][col + 1] == player_number and board[row][
+                col + 2] == player_number): return True
+        return False
+
+    def checkWinBottomLeft(self, row, col, player_number, board):
+        global width, height
+        if (row + 2 >= height or col - 2 < 0): return False
+        if (board[row + 2][col] == player_number and board[row + 1][col - 1] == player_number and board[row][
+                col - 2] == player_number): return True
+        return False
+
+    def checkWinTopLeft(self, row, col, player_number, board):
+        global width, height
+        if (row + 2 >= height or col - 2 < 0): return False
+        if (board[row + 2][col] == player_number and board[row + 1][col - 1] == player_number and board[row][
+                col - 2] == player_number): return True
+        return False
+
+    def checkWinTopRight(self, row, col, player_number, board):
+        global width, height
+        if (row - 2 < 0 or col - 2 < 0): return False
+        if (board[row - 2][col] == player_number and board[row - 1][col - 1] == player_number and board[row][
+                col - 2] == player_number): return True
+        return False
 
     def make_three(self,board,turn,row,column):
         try:
